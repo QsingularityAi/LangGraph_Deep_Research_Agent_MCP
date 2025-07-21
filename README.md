@@ -1,6 +1,6 @@
-# Deep Research Agent WIth Bright Data MCP 
+# Deep Research Agent with Enhanced Citations & Web Search
 
-A powerful AI research assistant built with Chainlit that conducts comprehensive investigations on any topic using advanced web search and analysis capabilities.
+A powerful AI research assistant built with Chainlit that conducts comprehensive investigations using real-time web search with proper source citations and transparent methodology.
 
 ```mermaid
 graph TB
@@ -141,112 +141,393 @@ graph TB
     class ResearchQuestionStruct,ResearchPlanStruct dataClass
     class FinalOutput outputClass
 ```
-## Features
 
-🔍 **Deep Research Capabilities**
-- Multi-step research planning
-- Strategic sub-question breakdown
-- Web search and content scraping
-- Source citations and references
+## 🌟 Key Features
 
-📊 **Interactive Interface**
-- Real-time progress tracking
-- Structured research reports
-- Follow-up question suggestions
-- Action buttons for easy exploration
+### 🌐 Real-time Web Research
 
-🎯 **Smart Analysis**
-- Automatic complexity assessment
-- Intelligent question prioritization
-- Comprehensive final reports
-- Research metadata tracking
+- **Live Web Search**: Google, Bing, Yandex integration via BrightData MCP
+- **Content Scraping**: Extract detailed content from authoritative sources  
+- **Current Information**: Access latest developments with timestamps
 
-## Quick Start
+### 📚 Enhanced Citations
 
-1. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+- **Proper Source Formatting**: URLs with titles and access dates
+- **Source Validation**: Verify web vs knowledge-based sources
+- **Citation Quality**: Clear distinction between research methods
 
-2. **Set up environment variables:**
-   Make sure your `.env` file contains:
-   ```
-   GOOGLE_API_KEY=your_google_api_key
-   BRIGHTDATA_API_TOKEN=your_brightdata_token
-   # ... other required keys
-   ```
+### 🔍 Research Methodology
 
-3. **Run the Chainlit app:**
-   ```bash
-   chainlit run app.py
-   ```
+- **Strategic Planning**: Break complex questions into focused sub-questions
+- **Quality Scoring**: Transparent research quality metrics
+- **Method Transparency**: Clear indication of research approach used
 
-4. **Open your browser:**
-   Navigate to `http://localhost:8000` to start researching!
+### 💡 Intelligence Features
 
-## How to Use
+- **Smart Follow-ups**: Generate relevant follow-up questions
+- **Progress Tracking**: Real-time research progress indicators
+- **Error Handling**: Comprehensive troubleshooting guidance
 
-### Basic Research
-Simply ask any research question:
-- "What are the latest developments in quantum computing?"
-- "Analyze the impact of AI on healthcare"
-- "Compare different renewable energy technologies"
+## 📁 Project Structure
 
-### Advanced Features
-- **Follow-up Questions**: Click suggested follow-up buttons to dive deeper
-- **Progress Tracking**: Watch real-time research progress
-- **Structured Reports**: Get comprehensive, well-organized results
-- **Source Citations**: All findings include proper source references
+```text
+LangGraph_Deep_Research_Agent_MCP/
+├── app.py                     # Main Chainlit application
+├── agents/
+│   └── research_agent.py      # Core research agent implementation
+├── config/
+│   └── settings.py           # Configuration management
+├── utils/
+│   └── helpers.py            # Utility functions
+├── tests/
+│   ├── test_environment.py   # Environment testing
+│   └── test_citations.py     # Citation testing
+├── docs/
+│   ├── FIXES_README.md       # Detailed fixes documentation
+│   └── README_detailed.md    # Detailed documentation with mermaid
+├── src/
+│   └── agent.py             # Legacy agent (kept for compatibility)
+├── .env.example             # Environment configuration template
+├── requirements.txt         # Python dependencies
+├── setup.sh                # Automated setup script
+└── chainlit.md             # Chainlit configuration
+```
 
-### Example Research Flow
-1. Ask: "What is the current state of electric vehicle adoption?"
-2. Agent generates research plan with sub-questions
-3. Conducts web research for each sub-question
-4. Compiles comprehensive report with sources
-5. Suggests intelligent follow-up questions
-6. Click follow-up buttons to explore further
+## 🚀 Quick Start
 
-## Configuration
+### 1. Create Virtual Environment (Recommended)
 
-### Research Depth
-The agent automatically determines research depth based on question complexity:
-- **Basic**: Simple factual questions
-- **Intermediate**: Analysis and comparison questions  
-- **Comprehensive**: Complex, multi-faceted investigations
+**Why use virtual environment?** Isolates project dependencies and prevents conflicts with other Python projects.
 
-### Customization
-Edit `app.py` to customize:
-- UI messages and formatting
-- Progress tracking steps
-- Follow-up question handling
-- Error messages and fallbacks
+```bash
+# Clone or navigate to project
+cd LangGraph_Deep_Research_Agent_MCP
 
-## Architecture
+# Create virtual environment
+python -m venv venv
 
-- **Frontend**: Chainlit web interface
-- **Backend**: Deep Research Agent with LangGraph
-- **Search**: BrightData MCP integration
-- **LLM**: Google Gemini for analysis and synthesis
-- **Tools**: Web search, content scraping, citation extraction
+# Activate virtual environment
+# On macOS/Linux:
+source venv/bin/activate
 
-## Troubleshooting
+# On Windows:
+# venv\Scripts\activate
+
+# Verify activation (should show venv path)
+which python
+```
+
+**Important**: Always activate the virtual environment before working with the project:
+
+```bash
+# Every time you open a new terminal session:
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+```
+
+### 2. Install Dependencies
+
+```bash
+# Ensure virtual environment is activated
+pip install --upgrade pip
+
+# Install required packages
+pip install -r requirements.txt
+
+# Copy environment template
+cp .env.example .env
+```
+
+**Alternative - Automated Setup:**
+
+```bash
+# Use setup script (includes venv creation)
+chmod +x setup.sh
+./setup.sh
+```
+
+### 3. Configure API Keys
+
+Edit `.env` file:
+
+```bash
+# Required - Get from Google AI Studio
+GOOGLE_API_KEY=your_google_api_key_here
+GOOGLE_MODEL=gemini-2.0-flash-exp
+
+# Optional - Get from BrightData for web research
+BRIGHTDATA_API_TOKEN=your_brightdata_token_here
+BROWSER_AUTH=your_browser_auth_here
+WEB_UNLOCKER_ZONE=map_web_unlocker
+```
+
+### 4. Test Configuration
+
+```bash
+# Test your setup (ensure venv is activated)
+python tests/test_environment.py
+
+# Test citation functionality
+python tests/test_citations.py
+```
+
+### 5. Run Application
+
+```bash
+# Start the research agent (ensure venv is activated)
+chainlit run app.py
+```
+
+**Virtual Environment Reminder**: Always ensure your virtual environment is activated before running any commands. You should see `(venv)` at the beginning of your terminal prompt.
+
+## 📊 Research Modes
+
+### 🌐 Web Research Mode (Recommended)
+
+**Requirements**: `GOOGLE_API_KEY` + `BRIGHTDATA_API_TOKEN`
+
+- Real-time web search and content scraping
+- Current information with proper source citations
+- Live data from authoritative sources
+
+### 📚 Knowledge-Based Mode (Fallback)
+
+**Requirements**: `GOOGLE_API_KEY` only
+
+- Analysis based on training data
+- Clear labeling of limitations
+- Recommendations for web research setup
+
+## 🔧 API Key Setup
+
+### Google API Key (Required)
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create new API key
+3. Add to `.env` as `GOOGLE_API_KEY=your_key_here`
+
+### BrightData Token (Optional, for Web Research)
+
+1. Sign up at [BrightData](https://brightdata.com/)
+2. Get API token from dashboard
+3. Add to `.env` as `BRIGHTDATA_API_TOKEN=your_token_here`
+
+## 🎯 Usage Examples
+
+### Technology Research
+
+```text
+"What are the latest developments in AI safety regulations in 2024?"
+"Compare current large language model capabilities and limitations"
+"Analyze recent advances in quantum computing applications"
+```
+
+### Business Analysis
+
+```text  
+"Impact of remote work on tech industry productivity metrics"
+"Renewable energy adoption rates and market trends globally"
+"Cryptocurrency regulation changes across major markets"
+```
+
+### Science & Health
+
+```text
+"Recent breakthroughs in cancer immunotherapy research"
+"Climate change mitigation strategies and their effectiveness"
+"Mental health trends and interventions post-pandemic"
+```
+
+## 🛠️ Commands
+
+### Virtual Environment Commands
+
+```bash
+# Activate virtual environment
+source venv/bin/activate    # macOS/Linux
+# venv\Scripts\activate     # Windows
+
+# Deactivate when done
+deactivate
+
+# Check if venv is active
+which python                # Should show venv path
+```
+
+### In-App Commands
+
+- **Ask any question** - Start comprehensive research
+- **Type number** (1-5) - Select follow-up question
+- **help** - Show usage instructions
+- **status** - Check configuration and environment
+
+### Terminal Commands
+
+```bash
+# Test environment (venv must be active)
+python tests/test_environment.py
+
+# Test specific features
+python tests/test_citations.py
+
+# Start application
+chainlit run app.py
+```
+
+## 📈 Research Quality Features
+
+### Citation Quality
+
+- ✅ **Web Sources**: Direct URLs with titles and access dates
+- ✅ **Source Validation**: Verify authenticity and relevance
+- ✅ **Method Transparency**: Clear indication of research approach
+
+### Research Methodology
+
+- ✅ **Strategic Planning**: Break complex questions into sub-questions
+- ✅ **Quality Scoring**: Quantitative research quality metrics
+- ✅ **Progress Tracking**: Real-time research progress indicators
+- ✅ **Error Handling**: Comprehensive troubleshooting guidance
+
+## 🔍 Troubleshooting
+
+### Virtual Environment Issues
+
+#### Virtual Environment Not Activated
+
+**Symptoms**: `ModuleNotFoundError` or wrong Python version
+
+**Solution**:
+
+```bash
+# Activate virtual environment
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+
+# Verify activation
+which python
+```
+
+#### Package Installation Errors
+
+**Symptoms**: Permission errors or package conflicts
+
+**Solution**:
+
+```bash
+# Ensure venv is active, then:
+pip install --upgrade pip
+pip install -r requirements.txt --force-reinstall
+```
 
 ### Common Issues
-1. **API Key Errors**: Ensure all required API keys are set in `.env`
-2. **Timeout Issues**: Complex research may take time - be patient
-3. **Search Failures**: Agent will fallback to knowledge-based responses
 
-### Debug Mode
-Set `LOG_LEVEL=DEBUG` in `.env` for detailed logging.
+#### No Web Research
 
-## Contributing
+**Symptoms**: Only knowledge-based responses
 
-Feel free to enhance the agent by:
-- Adding new research tools
-- Improving UI/UX
-- Extending follow-up question logic
-- Adding export functionality
+**Solution**:
 
-## License
+1. Check `BRIGHTDATA_API_TOKEN` in `.env`
+2. Verify Node.js installation: `npx --version`
+3. Test connection: `python tests/test_citations.py`
 
-MIT License - feel free to use and modify as needed.
+#### Poor Citations
+
+**Symptoms**: Missing or improperly formatted sources
+
+**Solution**:
+
+1. Ensure using organized app structure
+2. Verify web research is working (check status)
+3. Update to latest version of dependencies
+
+#### Environment Issues
+
+**Symptoms**: Import errors, API failures
+
+**Solution**:
+
+1. Activate virtual environment: `source venv/bin/activate`
+2. Run: `python tests/test_environment.py`
+3. Check: `.env` file configuration
+4. Reinstall: `pip install -r requirements.txt`
+
+### Getting Help
+
+- Run `python tests/test_environment.py` for diagnostics
+- Check configuration with in-app **status** command
+- Review `docs/FIXES_README.md` for detailed troubleshooting
+
+## 📋 Requirements
+
+### System Requirements
+
+- Python 3.8+
+- Node.js (for MCP web research tools)
+- Internet connection
+- Virtual environment (recommended)
+
+### Python Dependencies
+
+- chainlit >= 1.0.0
+- langchain-google-genai
+- langgraph
+- langchain-mcp-adapters
+- mcp
+- python-dotenv
+- pydantic >= 2.0.0
+
+## 🔄 Version History
+
+### v3.0 (Current)
+
+- ✅ Organized project structure
+- ✅ Enhanced citation system
+- ✅ Real-time web research validation
+- ✅ Comprehensive error handling
+- ✅ Method transparency
+- ✅ Virtual environment setup guide
+
+### v2.1 (Previous)
+
+- ✅ Improved source extraction
+- ✅ Better fallback handling
+- ✅ Enhanced user feedback
+
+### v1.0 (Original)
+
+- ✅ Basic research functionality
+- ✅ Simple citation system
+- ✅ Chainlit interface
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a virtual environment: `python -m venv venv`
+3. Activate it: `source venv/bin/activate`
+4. Create a feature branch
+5. Submit a pull request with detailed description
+
+## 📞 Support
+
+For issues and questions:
+
+1. Check virtual environment is activated: `which python`
+2. Check `docs/FIXES_README.md` for detailed troubleshooting
+3. Run diagnostic tests: `python tests/test_environment.py`
+4. Submit issues with configuration details and error logs
+
+---
+
+**Ready to start researching?**
+
+1. Create and activate virtual environment
+2. Configure your API keys
+3. Run `chainlit run app.py`

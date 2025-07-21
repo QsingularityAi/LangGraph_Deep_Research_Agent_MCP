@@ -1,4 +1,4 @@
-chainlit>=1.0.0,<2.0.0
+chainlit
 langchain-google-genai
 langchain-ollama
 langchain-mcp-adapters
