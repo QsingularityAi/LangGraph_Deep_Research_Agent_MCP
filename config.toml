@@ -1,0 +1,54 @@
+# Chainlit Configuration File
+
+[project]
+# Name of the app and chatbot
+name = "LangGraph MCP Agent"
+
+# Whether to enable telemetry (default: true)
+enable_telemetry = true
+
+# List of environment variables to be provided by each user to use the app
+# Leave empty since we're using .env file
+user_env = []
+
+# Session timeout in seconds (default: 3600)
+session_timeout = 3600
+
+[features]
+# Enable/disable features
+prompt_playground = true
+multi_modal = true
+
+[features.mcp.sse]
+# Enable or disable the SSE (Server-Sent Events) connection type globally
+enabled = true
+
+[features.mcp.stdio]
+# Enable or disable the stdio connection type globally
+enabled = true
+
+# Define an allowlist of executables for the stdio type
+allowed_executables = [
+    "npx",           # For npm packages
+    "node",          # Direct Node.js scripts
+    "python",        # Direct Python scripts
+    "python3",       # Python 3 specifically
+    "bash",          # For bash scripts
+    "sh"             # For shell scripts
+]
+
+[UI]
+# Name of the chatbot
+name = "LangGraph MCP Assistant"
+
+# Description of the chatbot
+description = "An AI agent that can dynamically use tools from any MCP server you connect"
+
+# Large size content are by default collapsed for a cleaner ui
+default_collapse_content = true
+
+# The default value for the expand messages settings
+default_expand_messages = false
+
+# Hide the chain of thought details from the user in the UI
+hide_cot = false

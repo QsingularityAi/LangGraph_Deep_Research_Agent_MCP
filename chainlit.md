@@ -1,14 +1,65 @@
-# Welcome to Chainlit! 🚀🤖
+# 🔍 Advanced Research Agent with MCP Integration
 
-Hi there, Developer! 👋 We're excited to have you on board. Chainlit is a powerful tool designed to help you prototype, debug and share applications built on top of LLMs.
+Welcome to your **AI-powered research assistant** built with LangGraph, Google Gemini, and comprehensive web scraping capabilities!
 
-## Useful Links 🔗
+## 🚀 What Makes This Agent Special
 
-- **Documentation:** Get started with our comprehensive [Chainlit Documentation](https://docs.chainlit.io) 📚
-- **Discord Community:** Join our friendly [Chainlit Discord](https://discord.gg/k73SQ3FyUh) to ask questions, share your projects, and connect with other developers! 💬
+This isn't just another chatbot - it's a **strategic research assistant** that:
 
-We can't wait to see what you create with Chainlit! Happy coding! 💻😊
+- **🧠 Thinks Step-by-Step**: Plans which tools to use in logical sequence
+- **🔗 Multi-Source Research**: Combines search, scraping, and extraction tools
+- **📚 Provides Citations**: Every response includes proper source attribution
+- **⚡ 60+ Specialized Tools**: Access to comprehensive data collection capabilities
 
-## Welcome screen
+## 🛠️ Research Capabilities
 
-To modify the welcome screen, edit the `chainlit.md` file at the root of your project. If you do not want a welcome screen, just leave this file empty.
+### **Core Research Tools**
+- **🔍 Search Engine**: Find the latest information across the web
+- **📄 Content Scraping**: Extract full content from any webpage
+- **🎯 Data Extraction**: Pull specific information from scraped content
+
+### **Specialized Data Sources**
+- **🛒 E-commerce**: Amazon, eBay, Walmart, Zara, Etsy, BestBuy
+- **💼 Business Intelligence**: LinkedIn, Crunchbase, ZoomInfo
+- **📱 Social Media**: Instagram, Facebook, TikTok, Twitter/X, YouTube
+- **📈 Finance & News**: Yahoo Finance, Reuters, market data
+- **🏠 Real Estate**: Zillow property listings and market data
+- **📱 App Intelligence**: Google Play Store, Apple App Store data
+
+## 🎯 How It Works
+
+1. **📝 Ask Your Question**: Research requests, market analysis, competitive intelligence
+2. **🤖 Strategic Planning**: Agent analyzes and plans the best research approach
+3. **🔄 Multi-Tool Execution**: Searches, scrapes, and extracts from multiple sources
+4. **📊 Comprehensive Response**: Detailed analysis with citations and evidence
+
+## 💡 Example Research Questions
+
+- *"What are the latest updates about [Technology/Company]?"*
+- *"Research [Company]'s Q4 2024 financial performance"*
+- *"Find customer reviews and pricing for [Product]"*
+- *"What are industry trends in [Sector] for 2025?"*
+- *"Compare [Product A] vs [Product B] across multiple sources"*
+
+## 🌟 Response Quality
+
+Every response includes:
+- **📋 Executive Summary**: Clear answer to your question
+- **🔍 Detailed Analysis**: Evidence-based insights from multiple sources
+- **💬 Direct Quotes**: Attributed quotes from original sources  
+- **🔗 Source Citations**: Complete URLs and references for verification
+
+## 🚀 Getting Started
+
+Simply connect to the **Bright Data MCP server** via the sidebar and start asking research questions. The agent will automatically:
+
+1. Search for current information
+2. Scrape detailed content from key sources
+3. Extract and synthesize findings
+4. Provide comprehensive, cited responses
+
+---
+
+**Powered by**: Google Gemini 2.5 Flash • LangGraph • Model Control Protocol (MCP) • 60+ Specialized Tools
+
+Ready to conduct some serious research? Ask me anything! 🚀
