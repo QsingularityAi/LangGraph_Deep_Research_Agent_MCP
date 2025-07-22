@@ -24,80 +24,99 @@ class SimpleMCPTool:
         self.session = session
         
     async def _call(self, input_text: str):
-        """Execute the MCP tool with simple string input"""
-        try:
-            # Clean the input text - remove JSON wrapping if present
-            cleaned_input = input_text.strip()
-            if cleaned_input.startswith('{"') and cleaned_input.endswith('"}'):
-                try:
-                    import json
-                    parsed = json.loads(cleaned_input)
-                    if isinstance(parsed, dict) and len(parsed) == 1:
-                        # Extract the single value from the JSON
-                        cleaned_input = list(parsed.values())[0]
-                except:
-                    pass  # Use original input if JSON parsing fails
-            
-            print(f"[{self.tool_name}] calling with input: {cleaned_input}")
-            
-            # Smart parameter detection based on tool name and input format
-            params = self._determine_parameters(cleaned_input)
-            
-            # Try the most likely parameter format first
-            result = await self.session.call_tool(self.tool_name, params)
-            
-            # Process the result more thoroughly for better citations
-            if hasattr(result, 'content'):
-                if isinstance(result.content, list):
-                    # Handle list of content (common for search results)
-                    content_parts = []
-                    for item in result.content:
-                        if hasattr(item, 'text'):
-                            content_parts.append(item.text)
-                        elif isinstance(item, dict):
-                            # Extract URLs and titles for citations
-                            if 'url' in item and 'title' in item:
-                                content_parts.append(f"Title: {item['title']}\nURL: {item['url']}\nContent: {item.get('description', item.get('snippet', str(item)))}")
+        """Execute the MCP tool with simple string input and UI tracking"""
+        
+        # Create a step to show tool execution in the UI
+        async with cl.Step(name=f"🔧 {self.tool_name}", type="tool") as step:
+            try:
+                # Clean the input text - remove JSON wrapping if present
+                cleaned_input = input_text.strip()
+                if cleaned_input.startswith('{"') and cleaned_input.endswith('"}'):
+                    try:
+                        import json
+                        parsed = json.loads(cleaned_input)
+                        if isinstance(parsed, dict) and len(parsed) == 1:
+                            # Extract the single value from the JSON
+                            cleaned_input = list(parsed.values())[0]
+                    except:
+                        pass  # Use original input if JSON parsing fails
+                
+                # Update step with input details
+                step.input = f"Input: {cleaned_input[:100]}{'...' if len(cleaned_input) > 100 else ''}"
+                
+                print(f"[{self.tool_name}] calling with input: {cleaned_input}")
+                
+                # Smart parameter detection based on tool name and input format
+                params = self._determine_parameters(cleaned_input)
+                
+                # Try the most likely parameter format first
+                result = await self.session.call_tool(self.tool_name, params)
+                
+                # Process the result more thoroughly for better citations
+                if hasattr(result, 'content'):
+                    if isinstance(result.content, list):
+                        # Handle list of content (common for search results)
+                        content_parts = []
+                        for item in result.content:
+                            if hasattr(item, 'text'):
+                                content_parts.append(item.text)
+                            elif isinstance(item, dict):
+                                # Extract URLs and titles for citations
+                                if 'url' in item and 'title' in item:
+                                    content_parts.append(f"Title: {item['title']}\nURL: {item['url']}\nContent: {item.get('description', item.get('snippet', str(item)))}")
+                                else:
+                                    content_parts.append(str(item))
                             else:
                                 content_parts.append(str(item))
-                        else:
-                            content_parts.append(str(item))
-                    processed_result = "\n---\n".join(content_parts)
+                        processed_result = "\n---\n".join(content_parts)
+                    else:
+                        processed_result = str(result.content)
                 else:
-                    processed_result = str(result.content)
-            else:
-                processed_result = str(result)
-            
-            # Add tool context for better agent understanding
-            if self.tool_name == 'search_engine':
-                processed_result = f"SEARCH RESULTS for '{cleaned_input}':\n{processed_result}\n\nNOTE: Use 'scrape_as_markdown' or 'scrape_as_html' to get full content from specific URLs above."
-            elif self.tool_name in ['scrape_as_markdown', 'scrape_as_html']:
-                processed_result = f"SCRAPED CONTENT from {cleaned_input}:\n{processed_result}\n\nNOTE: This is the full content from the webpage. Extract key information and quotes for your response."
-            
-            print(f"[{self.tool_name}] result length: {len(processed_result)} chars")
-            return processed_result
-            
-        except Exception as e1:
-            # Fallback with different parameter combinations
-            fallback_params = [
-                {"input": cleaned_input},
-                {"text": cleaned_input}, 
-                {"command": cleaned_input},
-                {"content": cleaned_input}
-            ]
-            
-            for params in fallback_params:
-                try:
-                    result = await self.session.call_tool(self.tool_name, params)
-                    processed_result = json.dumps(result.content) if hasattr(result, 'content') else str(result)
-                    print(f"[{self.tool_name}] success with parameters: {list(params.keys())}")
-                    return processed_result
-                except Exception:
-                    continue
-            
-            error_msg = f"Error calling tool {self.tool_name}: {str(e1)}"
-            print(error_msg)
-            return error_msg
+                    processed_result = str(result)
+                
+                # Add tool context for better agent understanding
+                if self.tool_name == 'search_engine':
+                    processed_result = f"SEARCH RESULTS for '{cleaned_input}':\n{processed_result}\n\nNOTE: Use 'scrape_as_markdown' or 'scrape_as_html' to get full content from specific URLs above."
+                elif self.tool_name in ['scrape_as_markdown', 'scrape_as_html']:
+                    processed_result = f"SCRAPED CONTENT from {cleaned_input}:\n{processed_result}\n\nNOTE: This is the full content from the webpage. Extract key information and quotes for your response."
+                
+                # Update step with output summary
+                output_preview = processed_result[:200] + "..." if len(processed_result) > 200 else processed_result
+                step.output = f"✅ Success ({len(processed_result)} chars)\n\nPreview:\n{output_preview}"
+                
+                print(f"[{self.tool_name}] result length: {len(processed_result)} chars")
+                return processed_result
+                
+            except Exception as e1:
+                # Update step to show we're trying fallback
+                step.output = f"⚠️ Primary method failed, trying fallback approaches..."
+                
+                # Fallback with different parameter combinations
+                fallback_params = [
+                    {"input": cleaned_input},
+                    {"text": cleaned_input}, 
+                    {"command": cleaned_input},
+                    {"content": cleaned_input}
+                ]
+                
+                for params in fallback_params:
+                    try:
+                        result = await self.session.call_tool(self.tool_name, params)
+                        processed_result = json.dumps(result.content) if hasattr(result, 'content') else str(result)
+                        
+                        # Update step with successful fallback
+                        step.output = f"✅ Success with fallback parameters: {list(params.keys())}\n\nResult: {processed_result[:200]}..."
+                        
+                        print(f"[{self.tool_name}] success with parameters: {list(params.keys())}")
+                        return processed_result
+                    except Exception:
+                        continue
+                
+                # All attempts failed
+                error_msg = f"❌ Error calling tool {self.tool_name}: {str(e1)}"
+                step.output = error_msg
+                print(error_msg)
+                return error_msg
     
     def _determine_parameters(self, input_text: str):
         """Determine the best parameters based on tool name and input format"""
@@ -173,9 +192,9 @@ class MCPAgentManager:
         return ChatGoogleGenerativeAI(
             model=model_name,
             google_api_key=google_api_key,
-            temperature=0.2,  # Balanced for research accuracy
+            temperature=1.0,  # Balanced for research accuracy
             convert_system_message_to_human=True,
-            max_output_tokens=8192,  # Longer responses for detailed research
+            max_output_tokens=15000,  # Longer responses for detailed research
             # Parameters optimized for research tasks
             top_p=0.9,
             top_k=30,
@@ -186,8 +205,10 @@ class MCPAgentManager:
         if not self.agent:
             return "❌ No agent initialized. Please connect at least one MCP server."
         
-        # Enhanced strategic instructions with loop prevention
-        enhanced_message = f"""You are an advanced research assistant with access to powerful web scraping and data collection tools. 
+        # Create a step to show agent reasoning
+        async with cl.Step(name="🧠 Agent Reasoning", type="llm") as step:
+            # Enhanced strategic instructions with loop prevention
+            enhanced_message = f"""You are an advanced research assistant with access to powerful web scraping and data collection tools. 
 
 USER QUESTION: {message}
 
@@ -244,30 +265,37 @@ IMPORTANT:
 - Don't get stuck in loops - provide an answer based on available information
 
 Begin your research now."""
-        
-        # Format message history for the agent
-        if message_history:
-            messages = message_history + [{"role": "user", "content": enhanced_message}]
-        else:
-            messages = [{"role": "user", "content": enhanced_message}]
-        
-        try:
-            # Run the agent with recursion limit and timeout
-            import asyncio
-            result = await asyncio.wait_for(
-                self.agent.ainvoke(
-                    {"messages": messages},
-                    config={"recursion_limit": 10}  # Limit recursion to prevent loops
-                ),
-                timeout=120  # 2-minute timeout for research
-            )
-            return result
-        except asyncio.TimeoutError:
-            return "⏰ Research is taking longer than expected. The agent may be conducting comprehensive research. Please try a more specific question if this continues."
-        except Exception as e:
-            if "recursion_limit" in str(e).lower():
-                return "🔄 The agent hit the recursion limit while trying to research your question. This usually means it's getting stuck trying the same tools repeatedly. Please try rephrasing your question or asking for something more specific."
-            return f"❌ Error running agent: {str(e)}"
+            
+            step.input = f"Research Query: {message}"
+            
+            # Format message history for the agent
+            if message_history:
+                messages = message_history + [{"role": "user", "content": enhanced_message}]
+            else:
+                messages = [{"role": "user", "content": enhanced_message}]
+            
+            try:
+                # Run the agent with recursion limit and timeout
+                result = await asyncio.wait_for(
+                    self.agent.ainvoke(
+                        {"messages": messages},
+                        config={"recursion_limit": 10}  # Limit recursion to prevent loops
+                    ),
+                    timeout=120  # 2-minute timeout for research
+                )
+                
+                # Update step with completion status
+                step.output = "✅ Agent reasoning completed successfully"
+                return result
+                
+            except asyncio.TimeoutError:
+                step.output = "⏰ Agent reasoning timed out after 2 minutes"
+                return "⏰ Research is taking longer than expected. The agent may be conducting comprehensive research. Please try a more specific question if this continues."
+            except Exception as e:
+                step.output = f"❌ Agent reasoning failed: {str(e)}"
+                if "recursion_limit" in str(e).lower():
+                    return "🔄 The agent hit the recursion limit while trying to research your question. This usually means it's getting stuck trying the same tools repeatedly. Please try rephrasing your question or asking for something more specific."
+                return f"❌ Error running agent: {str(e)}"
 
 
 # Global agent manager
@@ -277,75 +305,76 @@ agent_manager = MCPAgentManager()
 @cl.on_mcp_connect
 async def on_mcp_connect(connection, session: ClientSession):
     """Called when an MCP connection is established"""
-    await cl.Message(
-        content=f"✅ **{connection.name}** connected with {len((await session.list_tools()).tools)} tools"
-    ).send()
-    
-    try:
-        # List available tools from the MCP server
-        result = await session.list_tools()
-        
-        # Process tool metadata with simplified approach
-        tools = []
-        tool_wrappers = []
-        
-        for t in result.tools:
-            print(f"Processing tool: {t.name}")
+    # Create a step to show connection process
+    async with cl.Step(name=f"🔌 Connecting to {connection.name}", type="tool") as step:
+        try:
+            # List available tools from the MCP server
+            result = await session.list_tools()
             
-            # Create simplified wrapper for each tool
-            wrapper = SimpleMCPTool(
-                mcp_name=connection.name,
-                tool_name=t.name,
-                tool_description=t.description,
-                session=session
-            )
+            step.output = f"✅ Connected with {len(result.tools)} tools available"
             
-            # Convert to LangChain tool
-            try:
-                langchain_tool = wrapper.to_langchain_tool()
-                tools.append(langchain_tool)
-                tool_wrappers.append(wrapper)
-                print(f"✅ Successfully created tool: {t.name}")
-            except Exception as e:
-                print(f"⚠️ Failed to create tool {t.name}: {e}")
-                continue
+            # Process tool metadata with simplified approach
+            tools = []
+            tool_wrappers = []
             
-            # Store mapping for later use
-            agent_manager.mcp_tools_map[f"{connection.name}_{t.name}"] = {
-                "mcp_name": connection.name,
-                "tool_name": t.name,
-                "session": session
+            for t in result.tools:
+                print(f"Processing tool: {t.name}")
+                
+                # Create simplified wrapper for each tool
+                wrapper = SimpleMCPTool(
+                    mcp_name=connection.name,
+                    tool_name=t.name,
+                    tool_description=t.description,
+                    session=session
+                )
+                
+                # Convert to LangChain tool
+                try:
+                    langchain_tool = wrapper.to_langchain_tool()
+                    tools.append(langchain_tool)
+                    tool_wrappers.append(wrapper)
+                    print(f"✅ Successfully created tool: {t.name}")
+                except Exception as e:
+                    print(f"⚠️ Failed to create tool {t.name}: {e}")
+                    continue
+                
+                # Store mapping for later use
+                agent_manager.mcp_tools_map[f"{connection.name}_{t.name}"] = {
+                    "mcp_name": connection.name,
+                    "tool_name": t.name,
+                    "session": session
+                }
+            
+            # Store tools in user session
+            mcp_tools = cl.user_session.get("mcp_tools", {})
+            mcp_tools[connection.name] = {
+                "tools": tools,
+                "wrappers": tool_wrappers,
+                "raw_tools": [{
+                    "name": t.name,
+                    "description": t.description,
+                } for t in result.tools]
             }
-        
-        # Store tools in user session
-        mcp_tools = cl.user_session.get("mcp_tools", {})
-        mcp_tools[connection.name] = {
-            "tools": tools,
-            "wrappers": tool_wrappers,
-            "raw_tools": [{
-                "name": t.name,
-                "description": t.description,
-            } for t in result.tools]
-        }
-        cl.user_session.set("mcp_tools", mcp_tools)
-        
-        # Update the agent with all available tools
-        all_tools = []
-        for conn_tools in mcp_tools.values():
-            all_tools.extend(conn_tools["tools"])
-        
-        agent_manager.update_tools(all_tools)
-        
-        # Simple success message
-        await cl.Message(
-            content=f"🎯 **Research Agent Ready** - {len(tools)} tools loaded and ready for research!"
-        ).send()
-        
-    except Exception as e:
-        await cl.Message(
-            content=f"❌ Error connecting to **{connection.name}**: {str(e)}",
-            author="System"
-        ).send()
+            cl.user_session.set("mcp_tools", mcp_tools)
+            
+            # Update the agent with all available tools
+            all_tools = []
+            for conn_tools in mcp_tools.values():
+                all_tools.extend(conn_tools["tools"])
+            
+            agent_manager.update_tools(all_tools)
+            
+            # Success message
+            await cl.Message(
+                content=f"🎯 **Research Agent Ready** - {len(tools)} tools from **{connection.name}** loaded and ready for research!"
+            ).send()
+            
+        except Exception as e:
+            step.output = f"❌ Connection failed: {str(e)}"
+            await cl.Message(
+                content=f"❌ Error connecting to **{connection.name}**: {str(e)}",
+                author="System"
+            ).send()
 
 
 @cl.on_mcp_disconnect
@@ -381,11 +410,12 @@ async def on_chat_start():
     await cl.Message(
         content="""# 🔍 Advanced Research Agent Ready!
 
-✅ **MCP Server Connected**: Bright Data with 60+ specialized tools
+✅ **MCP Server**: Ready to connect (click 'Add MCP' in sidebar)
 🤖 **Model**: Google Gemini 2.5 Flash optimized for research
-🎯 **Ready for**: Multi-source research with clean citations
+🎯 **Features**: Multi-source research with tool execution visibility
+📊 **UI Enhancement**: See exactly which tools are running in real-time
 
-**Quick Start**: Ask me any research question and I'll gather information from multiple sources with proper citations!
+**Quick Start**: Connect an MCP server and ask me any research question!
 
 *Example*: "What are the latest updates about Qwen LLM?"
 """
@@ -414,7 +444,7 @@ async def on_message(message: cl.Message):
         return
     
     # Show thinking message
-    thinking_msg = cl.Message(content="🤔 Thinking...")
+    thinking_msg = cl.Message(content="🤔 Starting research process...")
     await thinking_msg.send()
     
     try:
@@ -436,13 +466,13 @@ async def on_message(message: cl.Message):
             
             if final_message:
                 # Update thinking message with the response
-                thinking_msg.content = final_message
+                thinking_msg.content = f"# 🎯 Research Complete\n\n{final_message}"
                 await thinking_msg.update()
             else:
-                thinking_msg.content = "I couldn't generate a proper response. Please try again."
+                thinking_msg.content = "❌ I couldn't generate a proper response. Please try again."
                 await thinking_msg.update()
         else:
-            thinking_msg.content = str(result)
+            thinking_msg.content = f"# 🎯 Research Complete\n\n{str(result)}"
             await thinking_msg.update()
         
         # Update message history
@@ -458,7 +488,7 @@ async def on_message(message: cl.Message):
         cl.user_session.set("message_history", message_history)
         
     except Exception as e:
-        thinking_msg.content = f"❌ Error: {str(e)}"
+        thinking_msg.content = f"❌ Research failed: {str(e)}\n\nPlease try rephrasing your question or check your MCP connection."
         await thinking_msg.update()
 
 
@@ -481,6 +511,9 @@ async def on_settings_update(settings):
             content=f"✅ Gemini model updated to: **{settings['gemini_model']}**"
         ).send()
 
+
+# Remove the unused @cl.step function since we're now using cl.Step directly
+# The old function is not needed anymore
 
 if __name__ == "__main__":
     cl.run()

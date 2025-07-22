@@ -18,6 +18,12 @@ session_timeout = 3600
 # Enable/disable features
 prompt_playground = true
 multi_modal = true
+# Add this line - top-level MCP feature flag
+mcp = true
+
+[features.mcp]
+# Enable MCP feature
+enabled = true
 
 [features.mcp.sse]
 # Enable or disable the SSE (Server-Sent Events) connection type globally
@@ -34,7 +40,8 @@ allowed_executables = [
     "python",        # Direct Python scripts
     "python3",       # Python 3 specifically
     "bash",          # For bash scripts
-    "sh"             # For shell scripts
+    "sh",            # For shell scripts
+    "uvx"            # Add uvx for MCP servers
 ]
 
 [UI]

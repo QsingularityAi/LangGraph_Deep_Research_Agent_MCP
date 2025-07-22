@@ -167,7 +167,7 @@ cd advanced-research-agent
 pip install -r requirements.txt
 
 # Run the agent
-chainlit run agent.py
+chainlit run agent.py -w
 ```
 
 ### Connecting MCP Server
@@ -281,6 +281,13 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - **Chainlit**: For the interactive chat interface
 - **Model Control Protocol**: For tool integration standards
 
+## 👥 Demo Video
+
+### 1. Direct Link (Recommended for GitHub)
+
+[![Watch the demo video on Vimeo](https://i.vimeocdn.com/video/1953308847-8c0e5f4e0a4c5a8e7b5c1a2d3f4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e?mw=1920&mh=1080&q=70)](https://vimeo.com/1103491664)
+
+
 ---
 
-**Built with ❤️ for comprehensive AI-powered research**
+Built with ❤️ for comprehensive AI-powered research
