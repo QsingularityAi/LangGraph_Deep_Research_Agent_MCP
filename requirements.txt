@@ -8,4 +8,5 @@ langchain-google-genai>=2.0.0
 langchain-core>=0.3.20
 langgraph>=0.2.0
 langsmith>=0.1.17,<0.2.0
-
+cerebras_cloud_sdk
+langchain-cerebras
